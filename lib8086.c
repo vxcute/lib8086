@@ -8,11 +8,7 @@ void x8086PrintDisasm(const x8086Instruction instr) {
     x8086Op op = instr.operands[i];
 
     if (op.kind == x8086_REG) {
-      if (i == op_count - 1) {
-        printf("%s", x8086GetRegName(op.reg, instr.is_wide));
-      } else {
-        printf("%s, ", x8086GetRegName(op.reg, instr.is_wide));
-      }
+      printf("%s", x8086GetRegName(op.reg, instr.is_wide));
     } else if (op.kind == x8086_MEM) {
       x8086MemOp mem = op.mem;
 
@@ -22,32 +18,19 @@ void x8086PrintDisasm(const x8086Instruction instr) {
         printf("BYTE ");
       }
 
-      if (i == op_count - 1) {
-        if (mem.has_disp) {
-          printf("[%s + 0x%X]", x8086GetMemoryOp(mem), mem.disp);
-        } else {
-          printf("[%s]", x8086GetMemoryOp(mem));
-        }
+      if (mem.has_disp) {
+        printf("[%s + 0x%X]", x8086GetMemoryOp(mem), mem.disp);
       } else {
-        if (mem.has_disp) {
-          printf("[%s + 0x%X], ", x8086GetMemoryOp(mem), mem.disp);
-        } else {
-          printf("[%s], ", x8086GetMemoryOp(mem));
-        }
+        printf("[%s]", x8086GetMemoryOp(mem));
       }
-
     } else if (op.kind == x8086_IMM) {
-      if (i == op_count - 1) {
-        printf("0x%X", op.imm);
-      } else {
-        printf("0x%X, ", op.imm);
-      }
+      printf("0x%X", op.imm);
     } else if (op.kind == x8086_DIRECT_ADDR) {
-      if (i == op_count - 1) {
-        printf("[0x%X]", op.daddr);
-      } else {
-        printf("[0x%X], ", op.daddr);
-      }
+      printf("[0x%X]", op.daddr);
+    }
+
+    if (i < op_count - 1) {
+      printf(", ");
     }
   }
   printf("\n");
