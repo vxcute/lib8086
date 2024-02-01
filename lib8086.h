@@ -13,8 +13,11 @@
 #define x8086_REG(b) (((b) >> 3) & 7)
 #define x8086_RM(b) ((b)&7)
 
+#define x8086_REG2(b) ((b)&7)
+
 #define x8086_D_MASK 2
 #define x8086_WIDE_MASK 1
+#define x8086_WIDE_MASK2 1 << 3
 
 #define x8086_DIRECT_ADDRESS 6
 
@@ -80,9 +83,12 @@ static x8086MemOp x8086DecodeMemOp(const u8 *instructions);
 static x8086RegOp x8086DecodeRegOp(const u8 *instructions, int opi);
 void x8086PrintDisasm(const x8086Instruction instr);
 
+x8086Instruction x8086DecodeInstruction(const u8 *instructions);
+
 x8086Instruction x8086_op_rm_r_Decode(const u8 *instructions);
 x8086Instruction x8086_op_r_rm_Decode(const u8 *instructions);
 x8086Instruction x8086_op_acc_imm_Decode(const u8 *instructions);
+x8086Instruction x8086_mov_r_imm_Decode(const u8 *instructions);
 
 static const x8086Opcode x8086_opcode_table[x8086_OPCODE_TABLE_SIZE] = {
     // op_rm_r
@@ -98,6 +104,12 @@ static const x8086Opcode x8086_opcode_table[x8086_OPCODE_TABLE_SIZE] = {
     [0x09] = {"OR", x8086_op_rm_r_Decode},
     [0x10] = {"ADC", x8086_op_rm_r_Decode},
     [0x11] = {"ADC", x8086_op_rm_r_Decode},
+    [0x30] = {"XOR", x8086_op_rm_r_Decode},
+    [0x31] = {"XOR", x8086_op_rm_r_Decode},
+    [0x20] = {"AND", x8086_op_rm_r_Decode},
+    [0x21] = {"AND", x8086_op_rm_r_Decode},
+    [0x18] = {"SBB", x8086_op_rm_r_Decode},
+    [0x19] = {"SBB", x8086_op_rm_r_Decode},
 
     // op_r_rm
     [0x02] = {"ADD", x8086_op_r_rm_Decode},
@@ -112,6 +124,38 @@ static const x8086Opcode x8086_opcode_table[x8086_OPCODE_TABLE_SIZE] = {
     [0x2B] = {"SUB", x8086_op_r_rm_Decode},
     [0x12] = {"ADC", x8086_op_r_rm_Decode},
     [0x13] = {"ADC", x8086_op_r_rm_Decode},
+    [0x32] = {"XOR", x8086_op_r_rm_Decode},
+    [0x33] = {"XOR", x8086_op_r_rm_Decode},
+    [0x22] = {"AND", x8086_op_r_rm_Decode},
+    [0x23] = {"AND", x8086_op_r_rm_Decode},
+    [0x1A] = {"SBB", x8086_op_r_rm_Decode},
+    [0x1B] = {"SBB", x8086_op_r_rm_Decode},
+
+    // op_acc_imm
+    //[0x04] = {"ADD", x8086_op_acc_imm_Decode},
+    //[0x05] = {"ADD", x8086_op_acc_imm_Decode},
+
+    //[0x2C] = {"SUB", x8086_op_acc_imm_Decode},
+    //[0x2D] = {"SUB", x8086_op_acc_imm_Decode},
+
+    //[0x3C] = {"CMP", x8086_op_acc_imm_Decode},
+    //[0x3D] = {"CMP", x8086_op_acc_imm_Decode},
+
+    // mov_r_imm8
+    [0xB0] = {"MOV", x8086_mov_r_imm_Decode},
+    [0xB1] = {"MOV", x8086_mov_r_imm_Decode},
+    [0xB2] = {"MOV", x8086_mov_r_imm_Decode},
+    [0xB3] = {"MOV", x8086_mov_r_imm_Decode},
+    [0xB4] = {"MOV", x8086_mov_r_imm_Decode},
+    [0xB5] = {"MOV", x8086_mov_r_imm_Decode},
+    [0xB6] = {"MOV", x8086_mov_r_imm_Decode},
+    [0xB7] = {"MOV", x8086_mov_r_imm_Decode},
+
+    // mov_r_imm16
+    [0xB8] = {"MOV", x8086_mov_r_imm_Decode},
+    [0xB9] = {"MOV", x8086_mov_r_imm_Decode},
+    [0xBA] = {"MOV", x8086_mov_r_imm_Decode},
+    [0xBB] = {"MOV", x8086_mov_r_imm_Decode},
 };
 
 #endif /* END OF _LIB8086_H  */

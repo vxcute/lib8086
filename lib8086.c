@@ -53,6 +53,10 @@ void x8086PrintDisasm(const x8086Instruction instr) {
   printf("\n");
 }
 
+const u16 x8086Read16(const u8 *buf, int start) {
+  return ((u16)buf[start + 1] << 8) | buf[start];
+}
+
 const char *x8086GetRegName(const x8086RegOp reg, bool is_wide) {
 
   const char *regs[][2] = {
@@ -113,6 +117,12 @@ x8086RegOp x8086DecodeRegOp(const u8 *instructions, int opi) {
 
   reg.idx = opi ? x8086_REG(modrm) : x8086_RM(modrm);
   return reg;
+}
+
+x8086Instruction x8086DecodeInstruction(const u8 *instructions) {
+  u8 op = instructions[0];
+  x8086Instruction instr = x8086_opcode_table[op].decoder(instructions);
+  return instr;
 }
 
 x8086Instruction x8086_op_rm_r_Decode(const u8 *instructions) {
@@ -195,6 +205,33 @@ x8086Instruction x8086_op_r_rm_Decode(const u8 *instructions) {
 
   instr_ln += 2;
   instr.size = instr_ln;
+
+  return instr;
+}
+
+x8086Instruction x8086_mov_r_imm_Decode(const u8 *instructions) {
+  x8086Instruction instr;
+  u8 mod;
+  u8 i;
+  u8 instr_ln;
+  u8 op;
+
+  memset(&instr, 0, sizeof(instr));
+  instr_ln = 0;
+  i = 0;
+  op = instructions[i];
+  instr.mnemonic = x8086_opcode_table[op].mnemonic;
+  instr.is_wide = instructions[i] & x8086_WIDE_MASK2;
+
+  instr.operands[0].kind = x8086_REG;
+  instr.operands[0].reg.idx = x8086_REG2(instructions[i]);
+
+  instr.operands[1].kind = x8086_IMM;
+
+  instr.operands[1].imm =
+      instr.is_wide ? x8086Read16(instructions, i + 1) : instructions[i + 1];
+
+  instr.size = instr.is_wide ? 3 : 2;
 
   return instr;
 }
