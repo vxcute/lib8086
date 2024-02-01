@@ -7,26 +7,31 @@ void x8086PrintDisasm(const x8086Instruction instr) {
   for (int i = 0; i < op_count; i++) {
     x8086Op op = instr.operands[i];
 
-    if (op.kind == x8086_REG) {
+    switch (op.kind) {
+    case x8086_REG: {
       printf("%s", x8086GetRegName(op.reg, instr.is_wide));
-    } else if (op.kind == x8086_MEM) {
+    } break;
+    case x8086_MEM: {
       x8086MemOp mem = op.mem;
 
-      if (instr.is_wide) {
+      if (instr.is_wide)
         printf("WORD ");
-      } else {
+      else
         printf("BYTE ");
-      }
 
-      if (mem.has_disp) {
+      if (mem.has_disp)
         printf("[%s + 0x%X]", x8086GetMemoryOp(mem), mem.disp);
-      } else {
+
+      else
         printf("[%s]", x8086GetMemoryOp(mem));
-      }
-    } else if (op.kind == x8086_IMM) {
+
+    } break;
+    case x8086_IMM: {
       printf("0x%X", op.imm);
-    } else if (op.kind == x8086_DIRECT_ADDR) {
+    } break;
+    case x8086_DIRECT_ADDR: {
       printf("[0x%X]", op.daddr);
+    } break;
     }
 
     if (i < op_count - 1) {
