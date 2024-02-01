@@ -94,9 +94,8 @@ x8086MemOp x8086DecodeMemOp(const u8 *instructions) {
       (mod == x8086_MEMORY_MODE8 || mod == x8086_MEMORY_MODE16) ? true : false;
 
   if (mem.has_disp) {
-    mem.disp = (mod == x8086_MEMORY_MODE16)
-                   ? ((instructions[i + 3] << 8) | instructions[i + 2])
-                   : instructions[i + 2];
+    mem.disp = (mod == x8086_MEMORY_MODE16) ? x8086Read16(instructions, i + 2)
+                                            : instructions[i + 2];
 
     mem.disp_size = (mod == x8086_MEMORY_MODE16) ? 2 : 1;
   }
@@ -148,8 +147,7 @@ x8086Instruction x8086_op_rm_r_Decode(const u8 *instructions) {
   } else {
     if (mod == x8086_MEMORY_MODE && rm == x8086_DIRECT_ADDRESS) {
       instr.operands[0].kind = x8086_DIRECT_ADDR;
-      instr.operands[0].daddr =
-          (instructions[i + 3] << 8) | instructions[i + 2];
+      instr.operands[0].daddr = x8086Read16(instructions, i + 2);
       instr_ln += 2;
     } else {
       instr.operands[0].mem = x8086DecodeMemOp(instructions);
@@ -191,8 +189,7 @@ x8086Instruction x8086_op_r_rm_Decode(const u8 *instructions) {
   } else {
     if (mod == x8086_MEMORY_MODE && rm == x8086_DIRECT_ADDRESS) {
       instr.operands[1].kind = x8086_DIRECT_ADDR;
-      instr.operands[1].daddr =
-          (instructions[i + 3] << 8) | instructions[i + 2];
+      instr.operands[1].daddr = x8086Read16(instructions, i + 2);
       instr_ln += 2;
     } else {
       instr.operands[1].mem = x8086DecodeMemOp(instructions);
@@ -232,6 +229,79 @@ x8086Instruction x8086_mov_r_imm_Decode(const u8 *instructions) {
       instr.is_wide ? x8086Read16(instructions, i + 1) : instructions[i + 1];
 
   instr.size = instr.is_wide ? 3 : 2;
+
+  return instr;
+}
+
+x8086Instruction x8086_op_acc_imm_Decode(const u8 *instructions) {
+  x8086Instruction instr;
+  u8 mod;
+  u8 i;
+  u8 instr_ln;
+  u8 op;
+
+  memset(&instr, 0, sizeof(instr));
+  instr_ln = 0;
+  i = 0;
+  op = instructions[i];
+  instr.mnemonic = x8086_opcode_table[op].mnemonic;
+  instr.is_wide = instructions[i] & x8086_WIDE_MASK;
+
+  instr.operands[0].kind = x8086_REG;
+  instr.operands[0].reg.idx = 0;
+
+  instr.operands[1].kind = x8086_IMM;
+
+  instr.operands[1].imm =
+      instr.is_wide ? x8086Read16(instructions, i + 1) : instructions[i + 1];
+
+  instr.size = instr.is_wide ? 3 : 2;
+
+  return instr;
+}
+
+x8086Instruction x8086_mov_m_acc_Decode(const u8 *instructions) {
+  x8086Instruction instr;
+  u8 mod;
+  u8 i;
+  u8 instr_ln;
+  u8 op;
+
+  memset(&instr, 0, sizeof(instr));
+  instr_ln = 0;
+  i = 0;
+  op = instructions[i];
+  instr.mnemonic = x8086_opcode_table[op].mnemonic;
+  instr.is_wide = instructions[i] & x8086_WIDE_MASK;
+
+  instr.operands[0].kind = x8086_DIRECT_ADDR;
+  instr.operands[0].daddr = x8086Read16(instructions, i + 1);
+
+  instr.operands[1].kind = x8086_REG;
+  instr.operands[1].reg.idx = RegisterA;
+
+  return instr;
+}
+
+x8086Instruction x8086_mov_acc_m_Decode(const u8 *instructions) {
+  x8086Instruction instr;
+  u8 mod;
+  u8 i;
+  u8 instr_ln;
+  u8 op;
+
+  memset(&instr, 0, sizeof(instr));
+  instr_ln = 0;
+  i = 0;
+  op = instructions[i];
+  instr.mnemonic = x8086_opcode_table[op].mnemonic;
+  instr.is_wide = instructions[i] & x8086_WIDE_MASK;
+
+  instr.operands[0].kind = x8086_REG;
+  instr.operands[0].reg.idx = RegisterA;
+
+  instr.operands[1].kind = x8086_DIRECT_ADDR;
+  instr.operands[1].daddr = x8086Read16(instructions, i + 1);
 
   return instr;
 }

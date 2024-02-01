@@ -26,6 +26,10 @@ typedef unsigned short u16, x8086DirectAddr, x8086Imm;
 typedef short word;
 
 typedef enum {
+  RegisterA = 0,
+} x8086Register;
+
+typedef enum {
   x8086_MEMORY_MODE = 0,
   x8086_MEMORY_MODE8,
   x8086_MEMORY_MODE16,
@@ -89,6 +93,8 @@ x8086Instruction x8086_op_rm_r_Decode(const u8 *instructions);
 x8086Instruction x8086_op_r_rm_Decode(const u8 *instructions);
 x8086Instruction x8086_op_acc_imm_Decode(const u8 *instructions);
 x8086Instruction x8086_mov_r_imm_Decode(const u8 *instructions);
+x8086Instruction x8086_mov_m_acc_Decode(const u8 *instructions);
+x8086Instruction x8086_mov_acc_m_Decode(const u8 *instructions);
 
 static const x8086Opcode x8086_opcode_table[x8086_OPCODE_TABLE_SIZE] = {
     // op_rm_r
@@ -132,14 +138,12 @@ static const x8086Opcode x8086_opcode_table[x8086_OPCODE_TABLE_SIZE] = {
     [0x1B] = {"SBB", x8086_op_r_rm_Decode},
 
     // op_acc_imm
-    //[0x04] = {"ADD", x8086_op_acc_imm_Decode},
-    //[0x05] = {"ADD", x8086_op_acc_imm_Decode},
-
-    //[0x2C] = {"SUB", x8086_op_acc_imm_Decode},
-    //[0x2D] = {"SUB", x8086_op_acc_imm_Decode},
-
-    //[0x3C] = {"CMP", x8086_op_acc_imm_Decode},
-    //[0x3D] = {"CMP", x8086_op_acc_imm_Decode},
+    [0x04] = {"ADD", x8086_op_acc_imm_Decode},
+    [0x05] = {"ADD", x8086_op_acc_imm_Decode},
+    [0x2C] = {"SUB", x8086_op_acc_imm_Decode},
+    [0x2D] = {"SUB", x8086_op_acc_imm_Decode},
+    [0x3C] = {"CMP", x8086_op_acc_imm_Decode},
+    [0x3D] = {"CMP", x8086_op_acc_imm_Decode},
 
     // mov_r_imm8
     [0xB0] = {"MOV", x8086_mov_r_imm_Decode},
@@ -156,6 +160,12 @@ static const x8086Opcode x8086_opcode_table[x8086_OPCODE_TABLE_SIZE] = {
     [0xB9] = {"MOV", x8086_mov_r_imm_Decode},
     [0xBA] = {"MOV", x8086_mov_r_imm_Decode},
     [0xBB] = {"MOV", x8086_mov_r_imm_Decode},
+
+    [0xA0] = {"MOV", x8086_mov_acc_m_Decode},
+    [0xA1] = {"MOV", x8086_mov_acc_m_Decode},
+
+    [0xA2] = {"MOV", x8086_mov_m_acc_Decode},
+    [0xA3] = {"MOV", x8086_mov_m_acc_Decode},
 };
 
 #endif /* END OF _LIB8086_H  */
